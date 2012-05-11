@@ -4,12 +4,22 @@
 
 CFLAGS=-g -Wall -Wextra -Wno-self-assign -std=c99
 
+LEX_SOURCES=$(wildcard src/*.l) 
+LEX_OBJECTS=$(patsubst %.l,%.c,${LEX_SOURCES})
+
+YACC_SOURCES=$(wildcard src/*.y) 
+YACC_OBJECTS=$(patsubst %.y,%.c,${YACC_SOURCES})
+
 SOURCES=$(wildcard src/**/*.c src/*.c)
 OBJECTS=$(patsubst %.c,%.o,${SOURCES})
 LIB_SOURCES=$(filter-out kaleidoscope.c,${SOURCES})
 LIB_OBJECTS=$(filter-out kaleidoscope.o,${OBJECTS})
 TEST_SOURCES=$(wildcard tests/*_tests.c)
 TEST_OBJECTS=$(patsubst %.c,%,${TEST_SOURCES})
+
+LEX=flex
+YACC=bison
+YFLAGS=-d
 
 
 ################################################################################
@@ -35,6 +45,18 @@ build/kaleidoscope: ${OBJECTS}
 build:
 	mkdir -p build
 
+
+################################################################################
+# Bison / Flex
+################################################################################
+
+src/lexer.c: src/parser.c
+	${LEX} -o $@ src/lexer.l
+
+src/parser.c: src/parser.y
+	${YACC} ${YFLAGS} -o $@ $^
+
+
 ################################################################################
 # Tests
 ################################################################################
@@ -49,9 +71,10 @@ build/tests:
 $(TEST_OBJECTS): %: %.c build/tests build/libkaleidoscope.a
 	$(CC) $(CFLAGS) -Isrc -o build/$@ $< build/libkaleidoscope.a
 
+
 ################################################################################
 # Clean up
 ################################################################################
 
 clean: 
-	rm -rf kaleidoscope ${OBJECTS}
+	rm -rf kaleidoscope ${OBJECTS} ${LEX_OBJECTS} ${YACC_OBJECTS}

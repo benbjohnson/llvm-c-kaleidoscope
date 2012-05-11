@@ -6,4 +6,6 @@ tests/*_tests
 .DS_Store
 **/*.dSYM*
 valgrind.log
-
+src/lexer.c
+src/parser.h
+src/parser.c
