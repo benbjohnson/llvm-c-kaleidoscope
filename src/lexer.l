@@ -6,10 +6,12 @@
 #define TOKEN(t) (yylval.token = t)
 %}
 
+%option noyywrap
+
 %%
 
 [ \t\n]                 ;
-[a-zA-Z_][a-zA-Z0-9_]*  SAVE_TOKEN; return TIDENTIFIER;
-[0-9]+\.[0-9]*          SAVE_TOKEN; return TNUMBER;
+[a-zA-Z_][a-zA-Z0-9_]*  SAVE_STRING; return TIDENTIFIER;
+[0-9]*                  SAVE_NUMBER; return TNUMBER;
 
 %%
