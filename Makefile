@@ -8,7 +8,7 @@ LEX_SOURCES=$(wildcard src/*.l)
 LEX_OBJECTS=$(patsubst %.l,%.c,${LEX_SOURCES})
 
 YACC_SOURCES=$(wildcard src/*.y) 
-YACC_OBJECTS=$(patsubst %.y,%.c,${YACC_SOURCES})
+YACC_OBJECTS=$(patsubst %.y,%.c,${YACC_SOURCES}) $(patsubst %.y,%.h,${YACC_SOURCES})
 
 SOURCES=$(wildcard src/**/*.c src/*.c)
 OBJECTS=$(patsubst %.c,%.o,${SOURCES})
