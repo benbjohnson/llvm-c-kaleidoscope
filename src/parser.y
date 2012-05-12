@@ -7,6 +7,8 @@
     void yyerror(const char *s) { printf("ERROR: %s\n", s); }
 %}
 
+%debug
+
 %code provides {
     int kal_parse(char *text, kal_ast_node **node);
 }
@@ -37,7 +39,7 @@ program : /* empty */
 
 ident   : TIDENTIFIER { $$ = kal_ast_variable_create($1); };
 
-number  : TNUMBER { $$ = kal_ast_number_create($1); };
+number  : TNUMBER { $$ = kal_ast_number_create($1);};
 
 expr    : number
         | ident
@@ -66,7 +68,7 @@ int kal_parse(char *text, kal_ast_node **node)
     yy_delete_buffer(buffer);
     
     // If parse was successful, return root node.
-    if(rc) {
+    if(rc == 0) {
         *node = root;
         return 0;
     }

@@ -19,7 +19,7 @@ TEST_OBJECTS=$(patsubst %.c,%,${TEST_SOURCES})
 
 LEX=flex
 YACC=bison
-YFLAGS=-d
+YFLAGS=-dv
 
 
 ################################################################################
@@ -54,7 +54,8 @@ src/lexer.c: src/parser.c
 	${LEX} --header-file=src/lexer.h -o $@ src/lexer.l
 
 src/parser.c: src/parser.y
-	${YACC} ${YFLAGS} -o $@ $^
+	mkdir -p build/bison
+	${YACC} ${YFLAGS} --report-file=build/bison/report.txt -o $@ $^
 
 
 ################################################################################
