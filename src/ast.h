@@ -14,6 +14,15 @@ typedef enum kal_ast_node_type_e {
     KAL_AST_TYPE_FUNCTION,
 } kal_ast_node_type_e;
 
+// Defines the types of binary expressions.
+typedef enum kal_ast_binop_e {
+    KAL_BINOP_PLUS,
+    KAL_BINOP_MINUS,
+    KAL_BINOP_MUL,
+    KAL_BINOP_DIV,
+} kal_ast_binop_e;
+
+
 struct kal_ast_node;
 
 // Represents a number in the AST.
@@ -28,7 +37,7 @@ typedef struct kal_ast_variable {
 
 // Represents a binary expression in the AST.
 typedef struct kal_ast_binary_expr {
-    char op;
+    kal_ast_binop_e operator;
     struct kal_ast_node *lhs;
     struct kal_ast_node *rhs;
 } kal_ast_binary_expr;
@@ -78,8 +87,8 @@ kal_ast_node *kal_ast_number_create(double value);
 
 kal_ast_node *kal_ast_variable_create(char *name);
 
-kal_ast_node *kal_ast_binary_expr_create(char op, kal_ast_node *lhs,
-    kal_ast_node *rhs);
+kal_ast_node *kal_ast_binary_expr_create(kal_ast_binop_e operator,
+    kal_ast_node *lhs, kal_ast_node *rhs);
 
 kal_ast_node *kal_ast_call_create(char *callee, kal_ast_node **args,
     int arg_count);

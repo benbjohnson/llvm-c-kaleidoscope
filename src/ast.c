@@ -50,19 +50,20 @@ kal_ast_node *kal_ast_variable_create(char *name)
 
 // Creates an AST node for a binary expression.
 //
-// op - The operation being performed.
+// op  - The operation being performed.
 // lhs - The AST node for the left hand side of the expression.
 // rhs - The AST node for the right hand side of the expression.
 //
 // Returns a Binary Expression AST Node.
-kal_ast_node *kal_ast_binary_expr_create(char op, kal_ast_node *lhs,
+kal_ast_node *kal_ast_binary_expr_create(kal_ast_binop_e operator,
+                                         kal_ast_node *lhs,
                                          kal_ast_node *rhs)
 {
     kal_ast_node *node = malloc(sizeof(kal_ast_node));
     node->type = KAL_AST_TYPE_BINARY_EXPR;
-    node->binary_expr.op  = op;
-    node->binary_expr.lhs = lhs;
-    node->binary_expr.rhs = rhs;
+    node->binary_expr.operator = operator;
+    node->binary_expr.lhs      = lhs;
+    node->binary_expr.rhs      = rhs;
     return node;
 }
 

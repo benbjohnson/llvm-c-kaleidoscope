@@ -22,13 +22,14 @@
 
 %token <string> TIDENTIFIER
 %token <number> TNUMBER
+%token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL
+%token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
+%token <token> TPLUS TMINUS TMUL TDIV
 
 %type <node> expr ident number
 
-%right '=' 
-%left '-' '+'
-%left '*' '/'
-%left NEG
+%left TPLUS TMINUS
+%left TMUL TDIV
 
 %start program
 
@@ -41,8 +42,13 @@ ident   : TIDENTIFIER { $$ = kal_ast_variable_create($1); };
 
 number  : TNUMBER { $$ = kal_ast_number_create($1);};
 
-expr    : number
+expr    : expr TPLUS expr   { $$ = kal_ast_binary_expr_create(KAL_BINOP_PLUS, $1, $3); }
+        | expr TMINUS expr  { $$ = kal_ast_binary_expr_create(KAL_BINOP_MINUS, $1, $3); }
+        | expr TMUL expr    { $$ = kal_ast_binary_expr_create(KAL_BINOP_MUL, $1, $3); }
+        | expr TDIV expr    { $$ = kal_ast_binary_expr_create(KAL_BINOP_DIV, $1, $3); }
+        | number
         | ident
+        | TLPAREN expr TRPAREN { $$ = $2 }
 ;
 
 %%
