@@ -12,7 +12,7 @@
 //==============================================================================
 
 //--------------------------------------
-// Basics
+// Variable & Number
 //--------------------------------------
 
 int test_parse_number() {
@@ -138,6 +138,33 @@ int test_parse_complex_with_parens() {
 }
 
 
+//--------------------------------------
+// Function Call
+//--------------------------------------
+
+int test_parse_function_call() {
+    kal_ast_node *node = NULL;
+    int rc = kal_parse("my_func(12, foo+30)", &node);
+    mu_assert(rc == 0, "");
+    mu_assert(node->type == KAL_AST_TYPE_CALL, "");
+    mu_assert(strcmp(node->call.name, "my_func") == 0, "");
+    mu_assert(node->call.arg_count == 2, "%d", node->call.arg_count);
+    
+    // Arg 1
+    mu_assert(node->call.args[0]->type == KAL_AST_TYPE_NUMBER, "");
+    mu_assert(node->call.args[0]->number.value == 12, "");
+
+    // Arg 2
+    mu_assert(node->call.args[1]->type == KAL_AST_TYPE_BINARY_EXPR, "");
+    mu_assert(node->call.args[1]->binary_expr.operator == KAL_BINOP_PLUS, "");
+    mu_assert(strcmp(node->call.args[1]->binary_expr.lhs->variable.name, "foo") == 0, "");
+    mu_assert(node->call.args[1]->binary_expr.rhs->number.value == 30, "");
+    
+    kal_ast_node_free(node);
+    return 0;
+}
+
+
 //==============================================================================
 //
 // Setup
@@ -154,6 +181,7 @@ int all_tests() {
     mu_run_test(test_parse_parens);
     mu_run_test(test_parse_complex);
     mu_run_test(test_parse_complex_with_parens);
+    mu_run_test(test_parse_function_call);
     return 0;
 }
 

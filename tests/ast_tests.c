@@ -62,7 +62,7 @@ int test_kal_ast_call_create() {
     args[1] = kal_ast_number_create(200);
     kal_ast_node *node = kal_ast_call_create("baz", args, 2);
     mu_assert(node->type == KAL_AST_TYPE_CALL, "");
-    mu_assert(strcmp(node->call.callee, "baz") == 0, "");
+    mu_assert(strcmp(node->call.name, "baz") == 0, "");
     mu_assert(node->call.args[0] == args[0], "");
     mu_assert(node->call.args[1] == args[1], "");
     mu_assert(node->call.arg_count == 2, "");

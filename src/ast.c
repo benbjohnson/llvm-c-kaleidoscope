@@ -79,12 +79,12 @@ kal_ast_node *kal_ast_binary_expr_create(kal_ast_binop_e operator,
 // arg_count - The number of arguments.
 //
 // Returns a Function Call AST Node.
-kal_ast_node *kal_ast_call_create(char *callee, kal_ast_node **args,
+kal_ast_node *kal_ast_call_create(char *name, kal_ast_node **args,
                                   int arg_count)
 {
     kal_ast_node *node = malloc(sizeof(kal_ast_node));
     node->type = KAL_AST_TYPE_CALL;
-    node->call.callee = strdup(callee);
+    node->call.name = strdup(name);
 
     // Shallow copy arguments.
     node->prototype.args = malloc(sizeof(kal_ast_node*) * arg_count);
@@ -173,7 +173,7 @@ void kal_ast_node_free(kal_ast_node *node)
             break;
         }
         case KAL_AST_TYPE_CALL: {
-            if(node->call.callee) free(node->call.callee);
+            if(node->call.name) free(node->call.name);
             for(i=0; i<node->call.arg_count; i++) {
                 kal_ast_node_free(node->call.args[i]);
             }

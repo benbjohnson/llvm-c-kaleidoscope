@@ -44,7 +44,7 @@ typedef struct kal_ast_binary_expr {
 
 // Represents a function call in the AST.
 typedef struct kal_ast_call {
-    char *callee;
+    char *name;
     struct kal_ast_node **args;
     int arg_count;
 } kal_ast_call;
@@ -90,7 +90,7 @@ kal_ast_node *kal_ast_variable_create(char *name);
 kal_ast_node *kal_ast_binary_expr_create(kal_ast_binop_e operator,
     kal_ast_node *lhs, kal_ast_node *rhs);
 
-kal_ast_node *kal_ast_call_create(char *callee, kal_ast_node **args,
+kal_ast_node *kal_ast_call_create(char *name, kal_ast_node **args,
     int arg_count);
 
 kal_ast_node *kal_ast_prototype_create(char *name, char **args,
