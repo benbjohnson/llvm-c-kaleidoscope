@@ -13,6 +13,10 @@
     int kal_parse(char *text, kal_ast_node **node);
 }
 
+%code top {
+    void free_args(void **args, int count);
+}
+
 %union {
     char *string;
     double number;
@@ -32,9 +36,10 @@
 %token <number> TNUMBER
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
-%token <token> TPLUS TMINUS TMUL TDIV TEXTERN
+%token <token> TPLUS TMINUS TMUL TDIV
+%token <token> TEXTERN TDEF
 
-%type <node> expr ident number call prototype extern_func
+%type <node> expr ident number call prototype extern_func function
 %type <call_args> call_args
 %type <proto_args> proto_args
 
@@ -47,21 +52,24 @@
 
 program : /* empty */
         | extern_func { root = $1; }
+        | function    { root = $1; }
         | expr        { root = $1; }
 ;
 
-ident   : TIDENTIFIER { $$ = kal_ast_variable_create($1); };
+ident   : TIDENTIFIER { $$ = kal_ast_variable_create($1); free($1); };
 
 number  : TNUMBER { $$ = kal_ast_number_create($1);};
 
-call  : TIDENTIFIER TLPAREN call_args TRPAREN { $$ = kal_ast_call_create($1, $3.args, $3.count);};
+function : TDEF prototype expr   { $$ = kal_ast_function_create($2, $3); };
+
+call  : TIDENTIFIER TLPAREN call_args TRPAREN { $$ = kal_ast_call_create($1, $3.args, $3.count); free($1); free($3.args); };
 
 call_args : /* empty */     { $$.count = 0; $$.args = NULL; }
           | expr            { $$.count = 1; $$.args = malloc(sizeof(kal_ast_node*)); $$.args[0] = $1; }
           | call_args TCOMMA expr  { $1.count++; $1.args = realloc($1.args, sizeof(kal_ast_node*) * $1.count); $1.args[$1.count-1] = $3; $$ = $1; }
 ;
 
-prototype : TIDENTIFIER TLPAREN proto_args TRPAREN { $$ = kal_ast_prototype_create($1, $3.args, $3.count); };
+prototype : TIDENTIFIER TLPAREN proto_args TRPAREN { $$ = kal_ast_prototype_create($1, $3.args, $3.count); free($1); free_args((void**)$3.args, $3.count); };
 
 proto_args : /* empty */     { $$.count = 0; $$.args = NULL; }
            | TIDENTIFIER     { $$.count = 1; $$.args = malloc(sizeof(char*)); $$.args[0] = strdup($1); }
@@ -113,4 +121,18 @@ int kal_parse(char *text, kal_ast_node **node)
     else {
         return -1;
     }
+}
+
+// Frees an array and all the elements of the array.
+//
+// args - The array to free.
+// count - The number of elements in the array.
+void free_args(void **args, int count)
+{
+    int i;
+    for(i=0; i<count; i++) {
+        free(args[i]);
+    }
+
+    free(args);
 }

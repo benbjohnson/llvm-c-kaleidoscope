@@ -183,6 +183,33 @@ int test_parse_extern() {
 }
 
 
+//--------------------------------------
+// Function Definition
+//--------------------------------------
+
+int test_parse_function() {
+    kal_ast_node *node = NULL;
+    int rc = kal_parse("def my_func(foo, bar) foo + bar", &node);
+    mu_assert(rc == 0, "");
+    mu_assert(node->type == KAL_AST_TYPE_FUNCTION, "");
+
+    // Prototype
+    mu_assert(strcmp(node->function.prototype->prototype.name, "my_func") == 0, "");
+    mu_assert(node->function.prototype->prototype.arg_count == 2, "");
+    mu_assert(strcmp(node->function.prototype->prototype.args[0], "foo") == 0, "");
+    mu_assert(strcmp(node->function.prototype->prototype.args[1], "bar") == 0, "");
+
+    // Body
+    mu_assert(node->function.body->type == KAL_AST_TYPE_BINARY_EXPR, "");
+    mu_assert(node->function.body->binary_expr.operator == KAL_BINOP_PLUS, "");
+    mu_assert(strcmp(node->function.body->binary_expr.lhs->variable.name, "foo") == 0, "");
+    mu_assert(strcmp(node->function.body->binary_expr.rhs->variable.name, "bar") == 0, "");
+    
+    kal_ast_node_free(node);
+    return 0;
+}
+
+
 
 //==============================================================================
 //
@@ -202,6 +229,7 @@ int all_tests() {
     mu_run_test(test_parse_complex_with_parens);
     mu_run_test(test_parse_function_call);
     mu_run_test(test_parse_extern);
+    mu_run_test(test_parse_function);
     return 0;
 }
 
