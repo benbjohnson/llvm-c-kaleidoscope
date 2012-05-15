@@ -165,6 +165,25 @@ int test_parse_function_call() {
 }
 
 
+//--------------------------------------
+// Extern Function
+//--------------------------------------
+
+int test_parse_extern() {
+    kal_ast_node *node = NULL;
+    int rc = kal_parse("extern my_func(foo, bar)", &node);
+    mu_assert(rc == 0, "");
+    mu_assert(node->type == KAL_AST_TYPE_PROTOTYPE, "");
+    mu_assert(strcmp(node->prototype.name, "my_func") == 0, "");
+    mu_assert(node->prototype.arg_count == 2, "%d", node->prototype.arg_count);
+    mu_assert(strcmp(node->prototype.args[0], "foo") == 0, "");
+    mu_assert(strcmp(node->prototype.args[1], "bar") == 0, "");
+    kal_ast_node_free(node);
+    return 0;
+}
+
+
+
 //==============================================================================
 //
 // Setup
@@ -182,6 +201,7 @@ int all_tests() {
     mu_run_test(test_parse_complex);
     mu_run_test(test_parse_complex_with_parens);
     mu_run_test(test_parse_function_call);
+    mu_run_test(test_parse_extern);
     return 0;
 }
 

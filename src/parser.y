@@ -21,6 +21,10 @@
         kal_ast_node **args;
         int count;
     } call_args;
+    struct {
+        char **args;
+        int count;
+    } proto_args;
     int token;
 }
 
@@ -28,10 +32,11 @@
 %token <number> TNUMBER
 %token <token> TCEQ TCNE TCLT TCLE TCGT TCGE TEQUAL
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
-%token <token> TPLUS TMINUS TMUL TDIV
+%token <token> TPLUS TMINUS TMUL TDIV TEXTERN
 
-%type <node> expr ident number call
+%type <node> expr ident number call prototype extern_func
 %type <call_args> call_args
+%type <proto_args> proto_args
 
 %left TPLUS TMINUS
 %left TMUL TDIV
@@ -41,7 +46,9 @@
 %%
 
 program : /* empty */
-        | expr        { root = $1; };
+        | extern_func { root = $1; }
+        | expr        { root = $1; }
+;
 
 ident   : TIDENTIFIER { $$ = kal_ast_variable_create($1); };
 
@@ -54,6 +61,15 @@ call_args : /* empty */     { $$.count = 0; $$.args = NULL; }
           | call_args TCOMMA expr  { $1.count++; $1.args = realloc($1.args, sizeof(kal_ast_node*) * $1.count); $1.args[$1.count-1] = $3; $$ = $1; }
 ;
 
+prototype : TIDENTIFIER TLPAREN proto_args TRPAREN { $$ = kal_ast_prototype_create($1, $3.args, $3.count); };
+
+proto_args : /* empty */     { $$.count = 0; $$.args = NULL; }
+           | TIDENTIFIER     { $$.count = 1; $$.args = malloc(sizeof(char*)); $$.args[0] = strdup($1); }
+           | proto_args TCOMMA TIDENTIFIER  { $1.count++; $1.args = realloc($1.args, sizeof(char*) * $1.count); $1.args[$1.count-1] = strdup($3); $$ = $1; }
+;
+
+extern_func : TEXTERN prototype  { $$ = $2; };
+
 expr    : expr TPLUS expr   { $$ = kal_ast_binary_expr_create(KAL_BINOP_PLUS, $1, $3); }
         | expr TMINUS expr  { $$ = kal_ast_binary_expr_create(KAL_BINOP_MINUS, $1, $3); }
         | expr TMUL expr    { $$ = kal_ast_binary_expr_create(KAL_BINOP_MUL, $1, $3); }
@@ -61,7 +77,7 @@ expr    : expr TPLUS expr   { $$ = kal_ast_binary_expr_create(KAL_BINOP_PLUS, $1
         | number
         | ident
         | call
-        | TLPAREN expr TRPAREN { $$ = $2 }
+        | TLPAREN expr TRPAREN { $$ = $2; }
 ;
 
 %%
@@ -81,6 +97,8 @@ expr    : expr TPLUS expr   { $$ = kal_ast_binary_expr_create(KAL_BINOP_PLUS, $1
 // Returns 0 if successful, otherwise returns -1.
 int kal_parse(char *text, kal_ast_node **node)
 {
+    // yydebug = 1;
+    
     // Parse using Bison.
     YY_BUFFER_STATE buffer = yy_scan_string(text);
     int rc = yyparse();
