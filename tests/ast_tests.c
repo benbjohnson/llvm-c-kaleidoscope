@@ -43,8 +43,9 @@ int test_kal_ast_variable_create() {
 int test_kal_ast_binary_expr_create() {
     kal_ast_node *number = kal_ast_number_create(20);
     kal_ast_node *variable = kal_ast_variable_create("bar");
-    kal_ast_node *node = kal_ast_binary_expr_create('+', number, variable);
+    kal_ast_node *node = kal_ast_binary_expr_create(KAL_BINOP_PLUS, number, variable);
     mu_assert(node->type == KAL_AST_TYPE_BINARY_EXPR, "");
+    mu_assert(node->binary_expr.operator == KAL_BINOP_PLUS, "");
     mu_assert(node->binary_expr.lhs == number, "");
     mu_assert(node->binary_expr.rhs == variable, "");
     kal_ast_node_free(node);
