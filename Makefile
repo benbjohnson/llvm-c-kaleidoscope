@@ -3,6 +3,7 @@
 ################################################################################
 
 CFLAGS=-g -Wall -Wextra -Wno-self-assign -std=c99
+CXXFLAGS=-g -Wall -Wextra -Wno-self-assign
 
 LEX_SOURCES=$(wildcard src/*.l) 
 LEX_OBJECTS=$(patsubst %.l,%.c,${LEX_SOURCES}) $(patsubst %.l,%.h,${LEX_SOURCES})
@@ -15,12 +16,14 @@ OBJECTS=$(patsubst %.c,%.o,${SOURCES}) $(patsubst %.l,%.o,${LEX_SOURCES}) $(pats
 LIB_SOURCES=$(filter-out kaleidoscope.c,${SOURCES})
 LIB_OBJECTS=$(filter-out kaleidoscope.o,${OBJECTS})
 TEST_SOURCES=$(wildcard tests/*_tests.c)
-TEST_OBJECTS=$(patsubst %.c,%,${TEST_SOURCES})
+TEST_OBJECTS=$(filter-out tests/codegen_tests,$(patsubst %.c,%,${TEST_SOURCES}))
 
 LEX=flex
 YACC=bison
 YFLAGS=-dv
 
+LLVM_CC_FLAGS=`llvm-config --cflags`
+LLVM_LINK_FLAGS=`llvm-config --libs --cflags --ldflags core analysis executionengine jit interpreter native`
 
 ################################################################################
 # Default Target
@@ -59,11 +62,19 @@ src/parser.c: src/parser.y
 
 
 ################################################################################
+# LLVM
+################################################################################
+
+src/codegen.o: src/codegen.c
+	${CC} ${LLVM_CC_FLAGS} ${CFLAGS} -c -o $@ $^
+
+
+################################################################################
 # Tests
 ################################################################################
 
 .PHONY: test
-test: $(TEST_OBJECTS)
+test: $(TEST_OBJECTS) build/tests/codegen_tests
 	@sh ./tests/runtests.sh
 
 build/tests:
@@ -71,6 +82,12 @@ build/tests:
 
 $(TEST_OBJECTS): %: %.c build/tests build/libkaleidoscope.a
 	$(CC) $(CFLAGS) -Isrc -o build/$@ $< build/libkaleidoscope.a
+
+build/tests/codegen_tests.o: tests/codegen_tests.c build/libkaleidoscope.a
+	$(CC) $(LLVM_CC_FLAGS) $(CFLAGS) -Isrc -c -o $@ tests/codegen_tests.c build/libkaleidoscope.a
+
+build/tests/codegen_tests: build/tests/codegen_tests.o build/libkaleidoscope.a
+	$(CXX) $(LLVM_LINK_FLAGS) $(CXXFLAGS) -Isrc -o $@ build/tests/codegen_tests.o build/libkaleidoscope.a
 
 
 ################################################################################

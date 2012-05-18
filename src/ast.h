@@ -1,3 +1,6 @@
+#ifndef _ast_h
+#define _ast_h
+
 //==============================================================================
 //
 // Definitions
@@ -100,3 +103,5 @@ kal_ast_node *kal_ast_function_create(kal_ast_node *prototype,
     kal_ast_node *body);
 
 void kal_ast_node_free(kal_ast_node *node);
+
+#endif
