@@ -107,6 +107,50 @@ LLVMValueRef kal_codegen_binary_expr(kal_ast_node *node, LLVMModuleRef module,
 
 
 //--------------------------------------
+// Function Call
+//--------------------------------------
+
+// Generates an LLVM value object for a Function Call AST.
+//
+// node    - The node to generate code for.
+//
+// Returns an LLVM value reference.
+LLVMValueRef kal_codegen_call(kal_ast_node *node, LLVMModuleRef module,
+                              LLVMBuilderRef builder)
+{
+    // Retrieve function.
+    LLVMValueRef func = LLVMGetNamedFunction(module, node->call.name);
+    
+    // Return error if function not found in module.
+    if(func == NULL) {
+        return NULL;
+    }
+    
+    // Return error if number of arguments doesn't match.
+    if(LLVMCountParams(func) != node->call.arg_count) {
+        return NULL;
+    }
+    
+    // Evaluate arguments.
+    LLVMValueRef *args = malloc(sizeof(LLVMValueRef) * node->call.arg_count);
+    unsigned int i;
+    unsigned int arg_count = node->call.arg_count;
+    for(i=0; i<arg_count; i++) {
+        args[i] = kal_codegen(node->call.args[i], module, builder);
+
+        if(args[i] == NULL) {
+            free(args);
+            return NULL;
+        }
+    }
+    
+    // Create call instruction.
+    return LLVMBuildCall(builder, func, args, arg_count, "calltmp");
+}
+
+
+
+//--------------------------------------
 // Code Generation
 //--------------------------------------
 
@@ -132,13 +176,12 @@ LLVMValueRef kal_codegen(kal_ast_node *node, LLVMModuleRef module,
             return kal_codegen_binary_expr(node, module, builder);
         }
         case KAL_AST_TYPE_CALL: {
-            break;
+            return kal_codegen_call(node, module, builder);
         }
-        case KAL_AST_TYPE_PROTOTYPE: {
-            break;
-        }
+        
+        case KAL_AST_TYPE_PROTOTYPE:
         case KAL_AST_TYPE_FUNCTION: {
-            break;
+            return NULL;
         }
     }
     

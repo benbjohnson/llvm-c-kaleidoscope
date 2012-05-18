@@ -158,7 +158,7 @@ kal_ast_node *kal_ast_function_create(kal_ast_node *prototype,
 // node - The node to free.
 void kal_ast_node_free(kal_ast_node *node)
 {
-    int i;
+    unsigned int i;
     
     if(!node) return;
     

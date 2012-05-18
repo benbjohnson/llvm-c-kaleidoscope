@@ -49,14 +49,14 @@ typedef struct kal_ast_binary_expr {
 typedef struct kal_ast_call {
     char *name;
     struct kal_ast_node **args;
-    int arg_count;
+    unsigned int arg_count;
 } kal_ast_call;
 
 // Represents a function prototype in the AST.
 typedef struct kal_ast_prototype {
     char *name;
     char **args;
-    int arg_count;
+    unsigned int arg_count;
 } kal_ast_prototype;
 
 // Represents a function in the AST.
