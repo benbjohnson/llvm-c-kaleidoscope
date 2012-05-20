@@ -41,8 +41,11 @@ build/libkaleidoscope.a: build ${LIB_OBJECTS}
 	ar rcs $@ ${LIB_OBJECTS}
 	ranlib $@
 
+src/kaleidoscope.o: src/kaleidoscope.c
+	${CC} ${LLVM_CC_FLAGS} ${CFLAGS} -c -o $@ $^
+
 build/kaleidoscope: ${OBJECTS}
-	$(CC) $(CFLAGS) src/kaleidoscope.o -o $@ build/libkaleidoscope.a
+	$(CXX) $(LLVM_LINK_FLAGS) $(CXXFLAGS) -Isrc -o $@ src/kaleidoscope.o build/libkaleidoscope.a
 	chmod 700 $@
 
 build:

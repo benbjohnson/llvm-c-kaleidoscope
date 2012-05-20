@@ -192,9 +192,12 @@ LLVMValueRef kal_codegen_prototype(kal_ast_node *node, LLVMModuleRef module)
     
     // Assign arguments to named values lookup.
     for(i=0; i<arg_count; i++) {
+        LLVMValueRef param = LLVMGetParam(func, i);
+        LLVMSetValueName(param, node->prototype.args[i]);
+        
         kal_named_value *val = malloc(sizeof(kal_named_value));
         val->name  = strdup(node->prototype.args[i]);
-        val->value = LLVMGetParam(func, i);
+        val->value = param;
         HASH_ADD_KEYPTR(hh, named_values, val->name, strlen(val->name), val);
     }
     
