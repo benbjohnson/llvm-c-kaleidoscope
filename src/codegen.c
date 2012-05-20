@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <llvm-c/Core.h>
+#include <llvm-c/Analysis.h>
 
 #include "codegen.h"
 
@@ -201,6 +202,50 @@ LLVMValueRef kal_codegen_prototype(kal_ast_node *node, LLVMModuleRef module)
 }
 
 
+//--------------------------------------
+// Function
+//--------------------------------------
+
+// Generates an LLVM value object for a Function AST.
+//
+// node    - The node to generate code for.
+//
+// Returns an LLVM value reference.
+LLVMValueRef kal_codegen_function(kal_ast_node *node, LLVMModuleRef module,
+                                  LLVMBuilderRef builder)
+{
+    HASH_CLEAR(hh, named_values);
+    
+    // Generate the prototype first.
+    LLVMValueRef func = kal_codegen(node->function.prototype, module, builder);
+    if(func == NULL) {
+        return NULL;
+    }
+    
+    // Create basic block.
+    LLVMBasicBlockRef block = LLVMAppendBasicBlock(func, "entry");
+    LLVMPositionBuilderAtEnd(builder, block);
+    
+    // Generate body.
+    LLVMValueRef body = kal_codegen(node->function.body, module, builder);
+    if(body == NULL) {
+        LLVMDeleteFunction(func);
+        return NULL;
+    }
+    
+    // Insert body as return vale.
+    LLVMBuildRet(builder, body);
+    
+    // Verify function.
+    if(LLVMVerifyFunction(func, LLVMPrintMessageAction) == 1) {
+        fprintf(stderr, "Invalid function");
+        LLVMDeleteFunction(func);
+        return NULL;
+    }
+    
+    return func;
+}
+
 
 //--------------------------------------
 // Code Generation
@@ -234,7 +279,7 @@ LLVMValueRef kal_codegen(kal_ast_node *node, LLVMModuleRef module,
             return kal_codegen_prototype(node, module);
         }
         case KAL_AST_TYPE_FUNCTION: {
-            return NULL;
+            return kal_codegen_function(node, module, builder);
         }
     }
     
