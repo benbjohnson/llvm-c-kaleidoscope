@@ -40,7 +40,7 @@
 %token <token> TEXTERN TDEF
 %token <token> TIF TTHEN TELSE
 
-%type <node> expr ident number call prototype extern_func function conditional
+%type <node> expr ident number call prototype extern_func function if_expr
 %type <call_args> call_args
 %type <proto_args> proto_args
 
@@ -80,13 +80,13 @@ proto_args : /* empty */     { $$.count = 0; $$.args = NULL; }
 
 extern_func : TEXTERN prototype  { $$ = $2; };
 
-conditional : TIF expr TTHEN expr TELSE expr { $$ = kal_ast_conditional_create($2, $4, $6); };
+if_expr : TIF expr TTHEN expr TELSE expr { $$ = kal_ast_if_expr_create($2, $4, $6); };
 
 expr    : expr TPLUS expr   { $$ = kal_ast_binary_expr_create(KAL_BINOP_PLUS, $1, $3); }
         | expr TMINUS expr  { $$ = kal_ast_binary_expr_create(KAL_BINOP_MINUS, $1, $3); }
         | expr TMUL expr    { $$ = kal_ast_binary_expr_create(KAL_BINOP_MUL, $1, $3); }
         | expr TDIV expr    { $$ = kal_ast_binary_expr_create(KAL_BINOP_DIV, $1, $3); }
-        | conditional
+        | if_expr
         | number
         | ident
         | call

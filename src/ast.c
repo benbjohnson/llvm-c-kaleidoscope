@@ -150,7 +150,7 @@ kal_ast_node *kal_ast_function_create(kal_ast_node *prototype,
 
 
 //--------------------------------------
-// Conditional AST
+// If Expression AST
 //--------------------------------------
 
 // Creates an AST node for an if statement.
@@ -159,16 +159,16 @@ kal_ast_node *kal_ast_function_create(kal_ast_node *prototype,
 // true_expr  - The expression to evaluate if the condition is true.
 // false_expr - The expression to evaluate if the condition is false.
 //
-// Returns a Conditional AST Node.
-kal_ast_node *kal_ast_conditional_create(kal_ast_node *condition,
+// Returns a If Expression AST Node.
+kal_ast_node *kal_ast_if_expr_create(kal_ast_node *condition,
                                          kal_ast_node *true_expr,
                                          kal_ast_node *false_expr)
 {
     kal_ast_node *node = malloc(sizeof(kal_ast_node));
-    node->type = KAL_AST_TYPE_CONDITIONAL;
-    node->conditional.condition = condition;
-    node->conditional.true_expr = true_expr;
-    node->conditional.false_expr = false_expr;
+    node->type = KAL_AST_TYPE_IF_EXPR;
+    node->if_expr.condition = condition;
+    node->if_expr.true_expr = true_expr;
+    node->if_expr.false_expr = false_expr;
     return node;
 }
 
@@ -219,10 +219,10 @@ void kal_ast_node_free(kal_ast_node *node)
             if(node->function.body) kal_ast_node_free(node->function.body);
             break;
         }
-        case KAL_AST_TYPE_CONDITIONAL: {
-            if(node->conditional.condition) kal_ast_node_free(node->conditional.condition);
-            if(node->conditional.true_expr) kal_ast_node_free(node->conditional.true_expr);
-            if(node->conditional.false_expr) kal_ast_node_free(node->conditional.false_expr);
+        case KAL_AST_TYPE_IF_EXPR: {
+            if(node->if_expr.condition) kal_ast_node_free(node->if_expr.condition);
+            if(node->if_expr.true_expr) kal_ast_node_free(node->if_expr.true_expr);
+            if(node->if_expr.false_expr) kal_ast_node_free(node->if_expr.false_expr);
             break;
         }
     }

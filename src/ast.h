@@ -15,7 +15,7 @@ typedef enum kal_ast_node_type_e {
     KAL_AST_TYPE_CALL,
     KAL_AST_TYPE_PROTOTYPE,
     KAL_AST_TYPE_FUNCTION,
-    KAL_AST_TYPE_CONDITIONAL,
+    KAL_AST_TYPE_IF_EXPR,
 } kal_ast_node_type_e;
 
 // Defines the types of binary expressions.
@@ -67,11 +67,11 @@ typedef struct kal_ast_function {
 } kal_ast_function;
 
 // Represents an if statement in the AST.
-typedef struct kal_ast_conditional {
+typedef struct kal_ast_if_expr {
     struct kal_ast_node *condition;
     struct kal_ast_node *true_expr;
     struct kal_ast_node *false_expr;
-} kal_ast_conditional;
+} kal_ast_if_expr;
 
 // Represents an expression in the AST.
 typedef struct kal_ast_node {
@@ -83,7 +83,7 @@ typedef struct kal_ast_node {
         kal_ast_call call;
         kal_ast_prototype prototype;
         kal_ast_function function;
-        kal_ast_conditional conditional;
+        kal_ast_if_expr if_expr;
     };
 } kal_ast_node;
 
@@ -111,7 +111,7 @@ kal_ast_node *kal_ast_prototype_create(char *name, char **args,
 kal_ast_node *kal_ast_function_create(kal_ast_node *prototype,
     kal_ast_node *body);
 
-kal_ast_node *kal_ast_conditional_create(kal_ast_node *condition,
+kal_ast_node *kal_ast_if_expr_create(kal_ast_node *condition,
     kal_ast_node *true_expr, kal_ast_node *false_expr);
 
 void kal_ast_node_free(kal_ast_node *node);

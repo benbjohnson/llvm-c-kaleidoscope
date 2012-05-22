@@ -108,18 +108,18 @@ int test_kal_ast_function_create() {
 
 
 //--------------------------------------
-// Conditional AST
+// If Expression AST
 //--------------------------------------
 
-int test_kal_ast_conditional_create() {
+int test_kal_ast_if_expr_create() {
     kal_ast_node *condition = kal_ast_number_create(1);
     kal_ast_node *true_expr = kal_ast_number_create(2);
     kal_ast_node *false_expr = kal_ast_number_create(3);
-    kal_ast_node *node = kal_ast_conditional_create(condition, true_expr, false_expr);
-    mu_assert(node->type == KAL_AST_TYPE_FUNCTION, "");
-    mu_assert(node->conditional.condition == condition, "");
-    mu_assert(node->conditional.true_expr == true_expr, "");
-    mu_assert(node->conditional.false_expr == false_expr, "");
+    kal_ast_node *node = kal_ast_if_expr_create(condition, true_expr, false_expr);
+    mu_assert(node->type == KAL_AST_TYPE_IF_EXPR, "");
+    mu_assert(node->if_expr.condition == condition, "");
+    mu_assert(node->if_expr.true_expr == true_expr, "");
+    mu_assert(node->if_expr.false_expr == false_expr, "");
     kal_ast_node_free(node);
     return 0;
 }
@@ -138,6 +138,7 @@ int all_tests() {
     mu_run_test(test_kal_ast_call_create);
     mu_run_test(test_kal_ast_prototype_create);
     mu_run_test(test_kal_ast_function_create);
+    mu_run_test(test_kal_ast_if_expr_create);
     return 0;
 }
 
