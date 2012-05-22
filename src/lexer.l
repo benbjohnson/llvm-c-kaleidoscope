@@ -12,6 +12,9 @@
 
 "def"                   return TOKEN(TDEF);
 "extern"                return TOKEN(TEXTERN);
+"if"                    return TOKEN(TIF);
+"then"                  return TOKEN(TTHEN);
+"else"                  return TOKEN(TELSE);
 [ \t\n]                 ;
 [a-zA-Z_][a-zA-Z0-9_]*  SAVE_STRING; return TIDENTIFIER;
 [0-9]*                  SAVE_NUMBER; return TNUMBER;

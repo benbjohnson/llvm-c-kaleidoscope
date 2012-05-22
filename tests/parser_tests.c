@@ -210,6 +210,23 @@ int test_parse_function() {
 }
 
 
+//--------------------------------------
+// Conditional
+//--------------------------------------
+
+int test_parse_conditional() {
+    kal_ast_node *node = NULL;
+    int rc = kal_parse("if 1 then 2 else 3", &node);
+    mu_assert(rc == 0, "");
+    mu_assert(node->type == KAL_AST_TYPE_CONDITIONAL, "");
+    mu_assert(node->conditional.condition->number.value == 1, "");
+    mu_assert(node->conditional.true_expr->number.value == 2, "");
+    mu_assert(node->conditional.false_expr->number.value == 3, "");
+    kal_ast_node_free(node);
+    return 0;
+}
+
+
 
 //==============================================================================
 //
@@ -230,6 +247,7 @@ int all_tests() {
     mu_run_test(test_parse_function_call);
     mu_run_test(test_parse_extern);
     mu_run_test(test_parse_function);
+    mu_run_test(test_parse_conditional);
     return 0;
 }
 

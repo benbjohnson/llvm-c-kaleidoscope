@@ -38,13 +38,15 @@
 %token <token> TLPAREN TRPAREN TLBRACE TRBRACE TCOMMA TDOT
 %token <token> TPLUS TMINUS TMUL TDIV
 %token <token> TEXTERN TDEF
+%token <token> TIF TTHEN TELSE
 
-%type <node> expr ident number call prototype extern_func function
+%type <node> expr ident number call prototype extern_func function conditional
 %type <call_args> call_args
 %type <proto_args> proto_args
 
 %left TPLUS TMINUS
 %left TMUL TDIV
+%left TELSE
 
 %start program
 
@@ -78,10 +80,13 @@ proto_args : /* empty */     { $$.count = 0; $$.args = NULL; }
 
 extern_func : TEXTERN prototype  { $$ = $2; };
 
+conditional : TIF expr TTHEN expr TELSE expr { $$ = kal_ast_conditional_create($2, $4, $6); };
+
 expr    : expr TPLUS expr   { $$ = kal_ast_binary_expr_create(KAL_BINOP_PLUS, $1, $3); }
         | expr TMINUS expr  { $$ = kal_ast_binary_expr_create(KAL_BINOP_MINUS, $1, $3); }
         | expr TMUL expr    { $$ = kal_ast_binary_expr_create(KAL_BINOP_MUL, $1, $3); }
         | expr TDIV expr    { $$ = kal_ast_binary_expr_create(KAL_BINOP_DIV, $1, $3); }
+        | conditional
         | number
         | ident
         | call

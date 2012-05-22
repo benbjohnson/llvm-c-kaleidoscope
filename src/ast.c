@@ -150,6 +150,30 @@ kal_ast_node *kal_ast_function_create(kal_ast_node *prototype,
 
 
 //--------------------------------------
+// Conditional AST
+//--------------------------------------
+
+// Creates an AST node for an if statement.
+//
+// condition  - The condition to evaluate.
+// true_expr  - The expression to evaluate if the condition is true.
+// false_expr - The expression to evaluate if the condition is false.
+//
+// Returns a Conditional AST Node.
+kal_ast_node *kal_ast_conditional_create(kal_ast_node *condition,
+                                         kal_ast_node *true_expr,
+                                         kal_ast_node *false_expr)
+{
+    kal_ast_node *node = malloc(sizeof(kal_ast_node));
+    node->type = KAL_AST_TYPE_CONDITIONAL;
+    node->conditional.condition = condition;
+    node->conditional.true_expr = true_expr;
+    node->conditional.false_expr = false_expr;
+    return node;
+}
+
+
+//--------------------------------------
 // Node Lifecycle
 //--------------------------------------
 
@@ -193,6 +217,12 @@ void kal_ast_node_free(kal_ast_node *node)
         case KAL_AST_TYPE_FUNCTION: {
             if(node->function.prototype) kal_ast_node_free(node->function.prototype);
             if(node->function.body) kal_ast_node_free(node->function.body);
+            break;
+        }
+        case KAL_AST_TYPE_CONDITIONAL: {
+            if(node->conditional.condition) kal_ast_node_free(node->conditional.condition);
+            if(node->conditional.true_expr) kal_ast_node_free(node->conditional.true_expr);
+            if(node->conditional.false_expr) kal_ast_node_free(node->conditional.false_expr);
             break;
         }
     }
