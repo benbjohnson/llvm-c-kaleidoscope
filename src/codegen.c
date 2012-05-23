@@ -250,6 +250,65 @@ LLVMValueRef kal_codegen_function(kal_ast_node *node, LLVMModuleRef module,
 }
 
 
+//--------------------------------------
+// If Expression
+//--------------------------------------
+
+// Generates an LLVM value object for an If Expression AST.
+//
+// node    - The node to generate code for.
+//
+// Returns an LLVM value reference.
+LLVMValueRef kal_codegen_if_expr(kal_ast_node *node, LLVMModuleRef module,
+                                 LLVMBuilderRef builder)
+{
+    // Generate the condition.
+    LLVMValueRef condition = kal_codegen(node->if_expr.condition, module, builder);
+    if(condition == NULL) {
+        return NULL;
+    }
+    
+    // Convert condition to bool.
+    LLVMValueRef zero = LLVMConstReal(LLVMDoubleType(), 0);
+    condition = LLVMBuildFCmp(builder, LLVMRealONE, condition, zero, "ifcond");
+
+    // Retrieve function.
+    LLVMValueRef func = LLVMGetBasicBlockParent(LLVMGetInsertBlock(builder));
+    
+    // Generate true/false expr and merge.
+    LLVMBasicBlockRef then_block = LLVMAppendBasicBlock(func, "then");
+    LLVMBasicBlockRef else_block = LLVMAppendBasicBlock(func, "else");
+    LLVMBasicBlockRef merge_block = LLVMAppendBasicBlock(func, "ifcont");
+    
+    LLVMBuildCondBr(builder, condition, then_block, else_block);
+
+    // Generate 'then' block.
+    LLVMPositionBuilderAtEnd(builder, then_block);
+    LLVMValueRef then_value = kal_codegen(node->if_expr.true_expr, module, builder);
+    if(then_value == NULL) {
+        return NULL;
+    }
+    
+    LLVMBuildBr(builder, merge_block);
+    then_block = LLVMGetInsertBlock(builder);
+    
+    LLVMPositionBuilderAtEnd(builder, else_block);
+    LLVMValueRef else_value = kal_codegen(node->if_expr.false_expr, module, builder);
+    if(else_value == NULL) {
+        return NULL;
+    }
+    LLVMBuildBr(builder, merge_block);
+    else_block = LLVMGetInsertBlock(builder);
+
+    LLVMPositionBuilderAtEnd(builder, merge_block);
+    LLVMValueRef phi = LLVMBuildPhi(builder, LLVMDoubleType (), "");
+    LLVMAddIncoming(phi, &then_value, &then_block, 1);
+    LLVMAddIncoming(phi, &else_value, &else_block, 1);
+    
+    return phi;
+}
+
+
 
 
 //--------------------------------------
@@ -285,6 +344,9 @@ LLVMValueRef kal_codegen(kal_ast_node *node, LLVMModuleRef module,
         }
         case KAL_AST_TYPE_FUNCTION: {
             return kal_codegen_function(node, module, builder);
+        }
+        case KAL_AST_TYPE_IF_EXPR: {
+            return kal_codegen_if_expr(node, module, builder);
         }
     }
     
