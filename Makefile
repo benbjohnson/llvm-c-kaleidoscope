@@ -41,6 +41,8 @@ build/libkaleidoscope.a: build ${LIB_OBJECTS}
 	ar rcs $@ ${LIB_OBJECTS}
 	ranlib $@
 
+src/kaleidoscope.c: ${LEX_OBJECTS}
+
 src/kaleidoscope.o: src/kaleidoscope.c
 	${CC} ${LLVM_CC_FLAGS} ${CFLAGS} -c -o $@ $^
 

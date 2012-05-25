@@ -1,13 +1,17 @@
 %{
     #include "stdio.h"
     #include "ast.h"
+    #include "parser.h"
     #include "lexer.h"
     kal_ast_node *root;
     extern int yylex();
-    void yyerror(const char *s) { printf("ERROR: %s\n", s); }
+    void yyerror(void *scanner, const char *s) { printf("ERROR: %s\n", s); }
 %}
 
 %debug
+%pure-parser
+%lex-param {void *scanner}
+%parse-param {void *scanner}
 
 %code provides {
     int kal_parse(char *text, kal_ast_node **node);
@@ -113,9 +117,12 @@ int kal_parse(char *text, kal_ast_node **node)
     // yydebug = 1;
     
     // Parse using Bison.
-    YY_BUFFER_STATE buffer = yy_scan_string(text);
-    int rc = yyparse();
-    yy_delete_buffer(buffer);
+    yyscan_t scanner;
+    yylex_init(&scanner);
+    YY_BUFFER_STATE buffer = yy_scan_string(text, scanner);
+    int rc = yyparse(scanner);
+    yy_delete_buffer(buffer, scanner);
+    yylex_destroy(scanner);
     
     // If parse was successful, return root node.
     if(rc == 0) {

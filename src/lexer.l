@@ -1,12 +1,15 @@
 %{
 #include "ast.h"
 #include "parser.h"
-#define SAVE_STRING yylval.string = strndup(yytext, yyleng)
-#define SAVE_NUMBER yylval.number = atof(yytext)
-#define TOKEN(t) (yylval.token = t)
+#define SAVE_STRING yylval->string = strndup(yytext, yyleng)
+#define SAVE_NUMBER yylval->number = atof(yytext)
+#define TOKEN(t) (yylval->token = t)
 %}
 
 %option noyywrap
+%option reentrant
+%option bison-bridge
+
 
 %%
 
