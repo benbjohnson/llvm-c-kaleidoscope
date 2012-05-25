@@ -7,5 +7,6 @@ tests/*_tests
 **/*.dSYM*
 valgrind.log
 src/lexer.c
+src/lexer.h
 src/parser.h
 src/parser.c
