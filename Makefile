@@ -18,9 +18,9 @@ LIB_OBJECTS=$(filter-out kaleidoscope.o,${OBJECTS})
 TEST_SOURCES=$(wildcard tests/*_tests.c)
 TEST_OBJECTS=$(filter-out tests/codegen_tests,$(patsubst %.c,%,${TEST_SOURCES}))
 
-LEX=flex
-YACC=bison
-YFLAGS=-dv
+LEX?=flex
+YACC?=bison
+YFLAGS?=-dv
 
 LLVM_CC_FLAGS=`llvm-config --cflags`
 LLVM_LINK_FLAGS=`llvm-config --libs --cflags --ldflags core analysis executionengine jit interpreter native`
@@ -63,7 +63,7 @@ src/lexer.c: src/parser.c
 
 src/parser.c: src/parser.y
 	mkdir -p build/bison
-	${YACC} ${YFLAGS} --report-file=build/bison/report.txt -o $@ $^
+	${YACC} ${YFLAGS} -o $@ $^
 
 
 ################################################################################
