@@ -10,3 +10,4 @@ src/lexer.c
 src/lexer.h
 src/parser.h
 src/parser.c
+parser.output

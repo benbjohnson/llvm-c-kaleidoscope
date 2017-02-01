@@ -20,9 +20,11 @@ int main(int argc, char **argv)
     LLVMModuleRef module = LLVMModuleCreateWithName("kal");
     LLVMBuilderRef builder = LLVMCreateBuilder();
     LLVMExecutionEngineRef engine;
-    
+
     LLVMInitializeNativeTarget();
-    LLVMLinkInJIT();
+    LLVMInitializeNativeAsmPrinter();
+    LLVMInitializeNativeAsmParser();
+    LLVMLinkInMCJIT();
 
     // Create execution engine.
     char *msg;
@@ -31,10 +33,10 @@ int main(int argc, char **argv)
         LLVMDisposeMessage(msg);
         return 1;
     }
-    
+
     // Setup optimizations.
     LLVMPassManagerRef pass_manager =  LLVMCreateFunctionPassManagerForModule(module);
-    LLVMAddTargetData(LLVMGetExecutionEngineTargetData(engine), pass_manager);
+    // LLVMAddTargetData(LLVMGetExecutionEngineTargetData(engine), pass_manager);
     LLVMAddPromoteMemoryToRegisterPass(pass_manager);
     LLVMAddInstructionCombiningPass(pass_manager);
     LLVMAddReassociatePass(pass_manager);
@@ -50,17 +52,17 @@ int main(int argc, char **argv)
         // Read input.
         char *input = NULL;
         size_t len = 0;
-        
+
         if(getline(&input, &len, stdin) == -1) {
             fprintf(stderr, "Error reading from stdin\n");
             break;
         }
-        
+
         // Exit if 'quit' is read.
         if(strcmp(input, "quit\n") == 0) {
             break;
         }
-        
+
         // Parse
         kal_ast_node *node = NULL;
         int rc = kal_parse(input, &node);
@@ -68,7 +70,7 @@ int main(int argc, char **argv)
             fprintf(stderr, "Parse error\n");
             continue;
         }
-        
+
         // Wrap in an anonymous function if it's a top-level expression.
         bool is_top_level = (node->type != KAL_AST_TYPE_FUNCTION && node->type != KAL_AST_TYPE_PROTOTYPE);
         if(is_top_level) {
@@ -96,11 +98,11 @@ int main(int argc, char **argv)
         else if(node->type == KAL_AST_TYPE_FUNCTION) {
             LLVMRunFunctionPassManager(pass_manager, value);
         }
-        
+
         // Clean up.
         kal_ast_node_free(node);
     }
-    
+
     // Dump entire module.
     LLVMDumpModule(module);
 
@@ -110,4 +112,3 @@ int main(int argc, char **argv)
 
     return 0;
 }
-

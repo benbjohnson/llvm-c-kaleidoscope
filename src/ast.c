@@ -116,7 +116,7 @@ kal_ast_node *kal_ast_prototype_create(char *name, char **args,
     kal_ast_node *node = malloc(sizeof(kal_ast_node));
     node->type = KAL_AST_TYPE_PROTOTYPE;
     node->prototype.name = strdup(name);
-    
+
     // Copy arguments.
     node->prototype.args = malloc(sizeof(char*) * arg_count);
     for(i=0; i<arg_count; i++) {
@@ -183,9 +183,9 @@ kal_ast_node *kal_ast_if_expr_create(kal_ast_node *condition,
 void kal_ast_node_free(kal_ast_node *node)
 {
     unsigned int i;
-    
+
     if(!node) return;
-    
+
     // Recursively free dependent data.
     switch(node->type) {
         case KAL_AST_TYPE_NUMBER: break;
@@ -226,7 +226,6 @@ void kal_ast_node_free(kal_ast_node *node)
             break;
         }
     }
-    
+
     free(node);
 }
-

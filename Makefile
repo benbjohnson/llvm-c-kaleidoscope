@@ -1,14 +1,16 @@
 ################################################################################
 # Variables
 ################################################################################
+CC=clang
+CXX=clang++
 
 CFLAGS=-g -Wall -Wextra -Wno-self-assign -std=c99
 CXXFLAGS=-g -Wall -Wextra -Wno-self-assign
 
-LEX_SOURCES=$(wildcard src/*.l) 
+LEX_SOURCES=$(wildcard src/*.l)
 LEX_OBJECTS=$(patsubst %.l,%.c,${LEX_SOURCES}) $(patsubst %.l,%.h,${LEX_SOURCES})
 
-YACC_SOURCES=$(wildcard src/*.y) 
+YACC_SOURCES=$(wildcard src/*.y)
 YACC_OBJECTS=$(patsubst %.y,%.c,${YACC_SOURCES}) $(patsubst %.y,%.h,${YACC_SOURCES})
 
 SOURCES=$(wildcard src/**/*.c src/*.c)
@@ -23,7 +25,7 @@ YACC?=bison
 YFLAGS?=-dv
 
 LLVM_CC_FLAGS=`llvm-config --cflags`
-LLVM_LINK_FLAGS=`llvm-config --libs --cflags --ldflags core analysis executionengine jit interpreter native`
+LLVM_LINK_FLAGS=`llvm-config --libs --cxxflags --ldflags core analysis executionengine mcjit interpreter native --system-libs`
 
 ################################################################################
 # Default Target
@@ -99,5 +101,5 @@ build/tests/codegen_tests: build/tests/codegen_tests.o build/libkaleidoscope.a
 # Clean up
 ################################################################################
 
-clean: 
+clean:
 	rm -rf kaleidoscope ${OBJECTS} ${LEX_OBJECTS} ${YACC_OBJECTS}
