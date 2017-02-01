@@ -1,9 +1,6 @@
 ################################################################################
 # Variables
 ################################################################################
-CC=clang
-CXX=clang++
-
 CFLAGS=-g -Wall -Wextra -Wno-self-assign -std=c99
 CXXFLAGS=-g -Wall -Wextra -Wno-self-assign
 
